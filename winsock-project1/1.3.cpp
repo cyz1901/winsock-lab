@@ -9,22 +9,22 @@ int main()
         puts("Could not load windows sockets DLL");
         return 0;
     }
-    char hostname[256];
-    gethostname(hostname, 256);
-    strcpy_s(hostname, "DESKTOP-6GOMKPJ");
-    hostent* pHostEnt = gethostbyname(hostname);
-    if (pHostEnt)
-    {
-        char* strIPAddress = inet_ntoa(*(in_addr*)pHostEnt->h_addr_list[0]);
-        printf("name is %s,ip is %s\n", pHostEnt->h_name, strIPAddress);
-
+    DWORD dwIPAddress = inet_addr("127.0.0.1");
+    if (dwIPAddress == INADDR_NONE) {
+        puts("Invalid Internet Address");
     }
-    else
-    {
-        printf("cannot resolve the host name\n");
+    else {
+        hostent* pHostEnt = gethostbyaddr((const char*)&dwIPAddress, 4, AF_INET);
+        if (pHostEnt) {
+            char* strIPAddress = inet_ntoa(*(in_addr*)pHostEnt->h_addr_list[0]);
+            printf("name = %s, ip = %s\n", pHostEnt->h_name, strIPAddress);
+        
+        }
+        else
+        {
+            printf("cannot resolve the host name\n");
+        }
+        WSACleanup();
+        
     }
-    WSACleanup();
-
-
-
 }
