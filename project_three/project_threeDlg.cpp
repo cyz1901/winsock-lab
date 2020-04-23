@@ -7,6 +7,9 @@
 #include "project_three.h"
 #include "project_threeDlg.h"
 #include "afxdialogex.h"
+#include "afxwin.h"
+#include <WinSock2.h>
+#pragma comment(lib,"ws2_32.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -52,6 +55,9 @@ END_MESSAGE_MAP()
 
 CprojectthreeDlg::CprojectthreeDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_PROJECT_THREE_DIALOG, pParent)
+	, m_strName(_T(""))
+	, m_strIP(_T(""))
+	, m_strHostInfo(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,12 +65,18 @@ CprojectthreeDlg::CprojectthreeDlg(CWnd* pParent /*=nullptr*/)
 void CprojectthreeDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_NAME, m_strName);
+	DDX_Text(pDX, IDC_EDIT_IP, m_strIP);
+	DDX_Text(pDX, IDC_EDIT_HOST_INFORMATION, m_strHostInfo);
 }
 
 BEGIN_MESSAGE_MAP(CprojectthreeDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_EIDT_QUERY_BY_NAME, &CprojectthreeDlg::OnButtonQueryByName)
+	ON_BN_CLICKED(IDC_EIDT_QUERY_BY_IP, &CprojectthreeDlg::OnButtonQueryByIp)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -99,7 +111,12 @@ BOOL CprojectthreeDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(1, 1), &wsaData))
+	{
+		AfxMessageBox(_T("winsock startup failed"), MB_OKCANCEL | MB_ICONQUESTION, 0);
+		PostMessage(WM_CLOSE);
+	}
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -153,3 +170,72 @@ HCURSOR CprojectthreeDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CprojectthreeDlg::OnButtonQueryByName()
+{
+	// TODO: 在此添加控件通知处理程序代码
+
+//根据控件中的值更新对应变量的值
+	UpdateData(TRUE);
+	//如果域名为空， 则查询本机信息
+	if (m_strName.IsEmpty())
+	{
+		char name[256];
+		gethostname(name, 256);
+		m_strName = name;
+
+
+	} 
+	hostent* host = gethostbyname((LPSTR)(LPCTSTR)m_strName);
+	if (host)
+	{
+		m_strIP = inet_ntoa(*(in_addr*)host->h_addr_list[0]);
+	} 
+	m_strHostInfo = "主机名： ";
+	m_strHostInfo += m_strName;
+	m_strHostInfo += "\r\nIP 地址： ";
+	m_strHostInfo += m_strIP;
+	m_strHostInfo += "\r\n\r\n 作者：1732113426 计算机172 陈屹宙"; //请改为自
+
+		UpdateData(FALSE); //根据变量的值更新对应控件的值
+}
+
+
+void CprojectthreeDlg::OnButtonQueryByIp()
+{	
+	// TODO: 在此添加控件通知处理程序代码
+	hostent* host = NULL;
+	UpdateData(TRUE);
+	//如果域名为空， 则查询本机信息
+	if (m_strIP.IsEmpty())
+	{
+		char ip[256];
+		gethostname(ip, 256);
+		m_strIP = ip;
+		host = gethostbyname((LPSTR)(LPCTSTR)m_strName);
+
+	}
+	
+	if (host)
+	{
+		m_strIP = inet_ntoa(*(in_addr*)host->h_addr_list[0]);
+	}
+	m_strHostInfo = "主机名： ";
+	m_strHostInfo += m_strName;
+	m_strHostInfo += "\r\nIP 地址： ";
+	m_strHostInfo += m_strIP;
+	m_strHostInfo += "\r\n\r\n 作者：1732113426 计算机172 陈屹宙"; //请改为自
+
+	UpdateData(FALSE); //根据变量的值更新对应控件的值
+}
+
+
+void CprojectthreeDlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+	// TODO: Add your message handler code here
+	WSACleanup();
+	AfxMessageBox(_T("destroyed"), MB_OKCANCEL | MB_ICONQUESTION, 0);
+	// TODO: 在此处添加消息处理程序代码
+}

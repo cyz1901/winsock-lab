@@ -31,4 +31,11 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CString m_strName;
+	CString m_strIP;
+	CString m_strHostInfo;
+	afx_msg void OnButtonQueryByName();
+	afx_msg void OnButtonQueryByIp();
+	afx_msg void OnDestroy();
 };
