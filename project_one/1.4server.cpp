@@ -37,7 +37,9 @@ int main()
                 responseSocket = accept(serversocket, (SOCKADDR*)&socketaddr,&len);
                 int recv_status = recv(serversocket,buff,100,0);
                 if (recv_status > 0) {
+                    //std::cout << buff;
                     printf("success recevice");
+
                 }
                 send(responseSocket, sendData, strlen(sendData), 0);
                 closesocket(responseSocket);

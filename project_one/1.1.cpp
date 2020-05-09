@@ -6,7 +6,7 @@
 #pragma comment(lib,"ws2_32.lib")
 int main()
 {
-    WORD wVersionRequested = MAKEWORD(1, 1);
+    WORD wVersionRequested = MAKEWORD(2, 0);
     WSADATA wsaData;
     int error = WSAStartup(wVersionRequested, &wsaData);
     if (error)
@@ -21,6 +21,8 @@ int main()
 
     if (LOBYTE(wsaData.wVersion)!=1 || HIBYTE(wsaData.wVersion)!=1)
     {
+        printf("%d", LOBYTE(wsaData.wVersion));
+        printf("%d", LOBYTE(wsaData.wHighVersion));
         puts("Winsock 函数库不支持你要的版本！");
         WSACleanup();
         return 0;
@@ -31,7 +33,7 @@ int main()
 
     //下面是自己添加的代码
     printf("The vision is %d.%d\n", LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion));
-    printf("The high vision is %d.%d\n", LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion));
+    printf("The high vision is %d.%d\n", LOBYTE(wsaData.wHighVersion), HIBYTE(wsaData.wHighVersion));
 
 }
 

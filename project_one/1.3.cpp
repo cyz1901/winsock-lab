@@ -9,7 +9,11 @@ int main()
         puts("Could not load windows sockets DLL");
         return 0;
     }
-    DWORD dwIPAddress = inet_addr("127.0.0.1");
+    //DWORD dwIPAddress = inet_addr("127.0.0.1");
+    DWORD dwIPAddress = INADDR_ANY;
+
+
+
     if (dwIPAddress == INADDR_NONE) {
         puts("Invalid Internet Address");
     }
