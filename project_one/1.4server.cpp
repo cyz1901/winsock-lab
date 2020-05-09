@@ -7,7 +7,18 @@ int main()
     SOCKET serversocket;
     sockaddr_in socketaddr;
     char buff[1000];
-    const char* sendData = "你好!客户端!我是服务器";
+    const char* sendData = "你好!客户端!我是服务端";
+    //定义信息结构体
+    typedef struct USERINFO {
+        int id;
+        char name[30];
+        int classe;
+        int age;
+        char hobby[100];
+    };
+
+    USERINFO usreInfo;
+
     if (WSAStartup(MAKEWORD(1, 1), &wsaData))
     {
         puts("Could not load windows sockets DLL");
@@ -35,9 +46,11 @@ int main()
                 SOCKET responseSocket;
                 int len = sizeof(SOCKADDR);
                 responseSocket = accept(serversocket, (SOCKADDR*)&socketaddr,&len);
-                int recv_status = recv(serversocket,buff,100,0);
+
+                int recv_status = recv(serversocket, buff, 100, 0);
+                memcpy(&usreInfo, buff, sizeof(USERINFO));
                 if (recv_status > 0) {
-                    //std::cout << buff;
+                    printf("班级：%d 学号：%d 姓名：%s 年龄：%d 爱好：%s \n", usreInfo.classe, usreInfo.id, usreInfo.name, usreInfo.age, usreInfo.hobby);
                     printf("success recevice");
 
                 }

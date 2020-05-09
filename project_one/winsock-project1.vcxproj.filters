@@ -30,5 +30,11 @@
     <ClCompile Include="1.4client.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="1.5client.cpp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="1.5server.cpp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

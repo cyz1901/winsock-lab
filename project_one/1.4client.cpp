@@ -7,8 +7,17 @@ int main()
     SOCKET clientsocket;
     sockaddr_in socketaddr;
     char buff[1000];
-    const char* sendData = "你好!客户端!我是服务器";
+    const char* sendData = "你好!服务端!我是客户端";
+    //定义信息结构体
+    typedef struct USERINFO {
+        int id;
+        char name[30];
+        int classe;
+        int age;
+        char hobby[100];
+    };
 
+    USERINFO usreInfo;
 
 
     if (WSAStartup(MAKEWORD(1, 1), &wsaData))
@@ -36,20 +45,27 @@ int main()
             }
             
             while (1)
-            {
+            {   
                 int len = sizeof(SOCKADDR);
-                gets_s(buff);
-                send(clientsocket, sendData, strlen(sendData), 0);
+                //gets_s(buff);
+                std::cout << "你的班级是? \n";
+                std::cin >> usreInfo.classe;
+                std::cout << "你的学号是? \n";
+                std::cin >> usreInfo.id;
+                std::cout << "你的姓名是? \n";
+                std::cin >> usreInfo.name;
+                std::cout << "你的年龄是? \n";
+                std::cin >> usreInfo.age;
+                std::cout << "你的爱好是? \n";
+                std::cin >> usreInfo.hobby;
+                //scanf_s("班级：%d 学号：%d 姓名：%s 年龄：%d 爱好：%s \n", usreInfo.classe, usreInfo.id, usreInfo.name, usreInfo.age, usreInfo.hobby);
 
-                int nameLen;
-                recv(clientsocket, (char*)&nameLen, sizeof(int), 0); //接收文件名长度
-                char name[256];
-                recv(clientsocket, name, nameLen, 0); //接收文件名
-                name[nameLen] = 0;
-                char filename[256] = "received "; //加入文件名前缀"received "
-                strcat(filename, name);
-                long fileLen;
-                int recv_status = recv(clientsocket, (char*)&fileLen, sizeof(long), 0); //接收文件长度
+                memset(buff, 0, 1024);
+                memcpy(buff, &usreInfo, sizeof(USERINFO));
+                send(clientsocket, buff, strlen(sendData), 0);
+
+          
+                int recv_status = recv(clientsocket, buff, sizeof(long), 0); //接收文件长度
 
 
                 
@@ -57,22 +73,7 @@ int main()
                     printf("success recevice");
                 }
 
-                FILE* fp = fopen(filename, "wb");//”r”表示读， ”w”表示写,”b”表示以二进制模式进行操作
-                if (fp == NULL){
-                    printf("cannot open file\n");
-                    return;
-                }
-                char fileBuf[1024];
-                int nRecvTotal = 0; //接收到的字节总数
-                long nWriteTotal = 0; //写入文件的字节总数
-                while (nRecvTotal < fileLen){
-                    int nRecv = recv(clientsocket, fileBuf, 1024, 0); //接收数据到 filebuf中
-                    nWriteTotal += fwrite(fileBuf, nRecv, 1, fp); //把 filebuf 中的数据写入文件
-                    nRecvTotal += nRecv;
-                } 
-                printf("file %s, received %d bytes, written %d bytes\n",filename,nRecvTotal,nWriteTotal);
-                //关闭文件
-                fclose(fp);
+                
             }
 
             closesocket(clientsocket);
