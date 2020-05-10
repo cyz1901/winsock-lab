@@ -182,30 +182,42 @@ void CprojectfourDlg::OnButtonSend()
 
 	SOCKET clientsocket;
 	sockaddr_in socketaddr;
-	char buff[1000];
+
+
+
+	char rebuff[100] = {0};
+	//LPSTR p;
 	socketaddr.sin_family = AF_INET;
-	CString str;
+
 	// TODO: 在此添加控件通知处理程序代码
 	UpdateData(TRUE);
-	socketaddr.sin_port = m_nPort;
+	socketaddr.sin_port = htons(m_nPort);
 
 	USES_CONVERSION;
-	socketaddr.sin_addr = *(in_addr*)W2A(m_strIP);
+
+
+	socketaddr.sin_addr.S_un.S_addr = inet_addr(W2A(m_strIP));//htol将主机字节序long型转换为网络字节序
+
 
 	clientsocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+
 	if (connect(clientsocket, (SOCKADDR*)&socketaddr, sizeof(socketaddr)) == SOCKET_ERROR) {
 		printf("connect fail \n");
 	}
+
+
+
 		
 
-	send(clientsocket,W2A(m_strMsg), strlen(W2A(m_strMsg)), 0);
-	while (1)
-	{
+	send(clientsocket, W2A(m_strMsg), strlen(W2A(m_strMsg))+1, 0);
 
-		int recv_status = recv(clientsocket, W2A(m_strMsgReturned), sizeof(W2A(m_strMsgReturned)), 0); //接收文件长度
-		if (recv_status > 0) {
-			printf("success recevice");
-		}
+	int recv_status = recv(clientsocket, rebuff, sizeof(rebuff), 0); //接收文件长度
+	if (recv_status > 0) {
+	m_strMsgReturned = rebuff;
+	TRACE("success recevice\n");
+
+	closesocket(clientsocket);
 
 	}
 	UpdateData(FALSE);

@@ -21,5 +21,8 @@
     <ClCompile Include="text_service.cpp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="server_for_4.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
