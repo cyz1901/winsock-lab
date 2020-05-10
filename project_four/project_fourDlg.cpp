@@ -9,6 +9,7 @@
 #include "afxdialogex.h"
 #include "afxwin.h"
 #include <WinSock2.h>
+#include <afxpriv.h>
 #pragma comment(lib,"ws2_32.lib")
 
 #ifdef _DEBUG
@@ -56,9 +57,10 @@ END_MESSAGE_MAP()
 CprojectfourDlg::CprojectfourDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_PROJECT_FOUR_DIALOG, pParent)
 	, m_strIP(_T(""))
-	, m_nPort(_T(""))
 	, m_strMsg(_T(""))
 	, m_strMsgReturned(_T(""))
+	, m_nPort(0)
+	
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -67,9 +69,9 @@ void CprojectfourDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT_IP, m_strIP);
-	DDX_Text(pDX, IDC_EDIT_PORT, m_nPort);
 	DDX_Text(pDX, IDC_EDIT_MSG, m_strMsg);
 	DDX_Text(pDX, IDC_EDIT_RETURNED, m_strMsgReturned);
+	DDX_Text(pDX, IDC_EDIT_PORT, m_nPort);
 }
 
 BEGIN_MESSAGE_MAP(CprojectfourDlg, CDialogEx)
@@ -112,6 +114,14 @@ BOOL CprojectfourDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(1, 1), &wsaData))
+	{
+		AfxMessageBox(_T("winsock startup failed"), MB_OKCANCEL | MB_ICONQUESTION, 0);
+		PostMessage(WM_CLOSE);
+	}
+
+
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -168,6 +178,35 @@ HCURSOR CprojectfourDlg::OnQueryDragIcon()
 
 
 void CprojectfourDlg::OnButtonSend()
-{
+{	
+
+	SOCKET clientsocket;
+	sockaddr_in socketaddr;
+	char buff[1000];
+	socketaddr.sin_family = AF_INET;
+	CString str;
 	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	socketaddr.sin_port = m_nPort;
+
+	USES_CONVERSION;
+	socketaddr.sin_addr = *(in_addr*)W2A(m_strIP);
+
+	clientsocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (connect(clientsocket, (SOCKADDR*)&socketaddr, sizeof(socketaddr)) == SOCKET_ERROR) {
+		printf("connect fail \n");
+	}
+		
+
+	send(clientsocket,W2A(m_strMsg), strlen(W2A(m_strMsg)), 0);
+	while (1)
+	{
+
+		int recv_status = recv(clientsocket, W2A(m_strMsgReturned), sizeof(W2A(m_strMsgReturned)), 0); //接收文件长度
+		if (recv_status > 0) {
+			printf("success recevice");
+		}
+
+	}
+	UpdateData(FALSE);
 }

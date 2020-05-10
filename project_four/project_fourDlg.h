@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <afxpriv.h>
 
 
 // CprojectfourDlg 对话框
@@ -33,10 +34,10 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CString m_strIP;
-	CString m_nPort;
 	CString m_strMsg;
 	CString m_strMsgReturned;
-	CString m_strMsgReturned;
-	CString m_strMsgReturned;
 	afx_msg void OnButtonSend();
+
+
+	short m_nPort;
 };
