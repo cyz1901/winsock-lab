@@ -124,7 +124,8 @@ BOOL CprojectfiveDlg::OnInitDialog()
 	m_strPwd = _T(""); // 初始化登录口令
 	UpdateData(FALSE); //更新界面
 
-
+	CInternetSession  pInternetCon(AfxGetAppName(), 1, PRE_CONFIG_INTERNET_ACCESS);
+	m_pFtpConn = pInternetCon.GetFtpConnection((LPCTSTR)"127.0.0.1");
 
 
 	
@@ -185,7 +186,7 @@ HCURSOR CprojectfiveDlg::OnQueryDragIcon()
 
 void CprojectfiveDlg::OnQuery()
 {	
-	
+	/*
 	CInternetSession  pInternetCon(AfxGetAppName(), 1, PRE_CONFIG_INTERNET_ACCESS);
 	m_pFtpConn = pInternetCon.GetFtpConnection(m_strFtp, m_strName, m_strPwd, 21);
 	CFtpFileFind cfind(m_pFtpConn);
@@ -198,31 +199,31 @@ void CprojectfiveDlg::OnQuery()
 	cfind.Close();
 	m_pFtpConn->Close();
 	UpdateData(FALSE); //更新界面
-	
+	*/
 }
 
 
 void CprojectfiveDlg::OnDownload()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	
+	/*
 	CInternetSession  pInternetCon(AfxGetAppName(), 1, PRE_CONFIG_INTERNET_ACCESS);
 	m_pFtpConn = pInternetCon.GetFtpConnection(m_strFtp, m_strName, m_strPwd, 21);
 	Download((CString)"D:/ex/server/world.txt", (CString)"D:/ex/local");
 	m_pFtpConn->Close();
-	
+	*/
 }
 
 
 void CprojectfiveDlg::OnUpload()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	
+	/*
 	CInternetSession  pInternetCon(AfxGetAppName(), 1, PRE_CONFIG_INTERNET_ACCESS);
 	m_pFtpConn = pInternetCon.GetFtpConnection(m_strFtp, m_strName, m_strPwd, 21);
-	Upload((CString)"D:/ex/local/hello.txt", (CString)"D:/ex/server");
+	//Upload((CString)"D:/ex/local/hello.txt", (CString)"D:/ex/server");
 	//m_pFtpConn->Close();
-	
+	*/
 }
 
 
