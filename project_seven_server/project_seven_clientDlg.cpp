@@ -1,4 +1,4 @@
-﻿//client and server
+﻿//server
 // project_seven_clientDlg.cpp: 实现文件
 //
 
@@ -12,8 +12,8 @@
 #define new DEBUG_NEW
 #endif
 #include <fstream>
-#include <string>
 using namespace std;
+#include <fstream>
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -182,7 +182,7 @@ HCURSOR CprojectsevenclientDlg::OnQueryDragIcon()
 
 
 void CprojectsevenclientDlg::OnClickedListen()
-{
+{	
 	UpdateData(TRUE);
 	// 声明并初始化一个服务端(本地)的地址结构 
 	sockaddr_in server_addr;
@@ -250,7 +250,7 @@ void CprojectsevenclientDlg::OnClickedListen()
 		int redlen = recv(m_New_Socket, buffer, 512, 0);
 		x = buffer;
 		if (redlen <= 0)
-		{
+		{	
 			TRACE("server OVER \n", buffer);;
 			rfile.close();
 			closesocket(m_New_Socket);
@@ -265,10 +265,10 @@ void CprojectsevenclientDlg::OnClickedListen()
 			break;
 		}
 		//
-
+		
 		rfile.write(buffer, redlen);
 		TRACE("recv is %s the len is %d\n", buffer, redlen);
-		send(m_New_Socket, "server:wait recv", strlen("server:wait recv") + 1, 0);
+		send(m_New_Socket,"server:wait recv",strlen("server:wait recv")+1,0);
 		closesocket(m_New_Socket);
 		rfile.close();
 
@@ -280,86 +280,43 @@ void CprojectsevenclientDlg::OnClickedListen()
 	WSACleanup();
 	edit_listen.EnableWindow(TRUE);
 
-
+		
 }
 
 
 void CprojectsevenclientDlg::OnClickedConnect()
 {
-	// 初始化socket dll 
-	UpdateData(TRUE);
-	ifstream rfile;
-
-	//创建socket 
-	SOCKET c_Socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (SOCKET_ERROR == c_Socket)
-	{
-		printf("Create Socket Error!");
-		system("pause");
-		exit(1);
-	}
-
-	//指定服务端的地址 
-	sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
-	USES_CONVERSION;
-	server_addr.sin_addr.S_un.S_addr = inet_addr(W2A(m_strIP));
-	server_addr.sin_port = htons(m_nPort);
-
-	if (SOCKET_ERROR == connect(c_Socket, (LPSOCKADDR)&server_addr, sizeof(server_addr)))
-	{
-		TRACE("Can Not Connect To Client IP!\n");
-
-
-	}
-
-
-
-	char buffer[512];
-	memset(buffer, 0, 512);
-	//rfile.open("E:\\happy.txt", ios::binary);
-	rfile.open(m_c_fileadd, ios::binary);
-	rfile.read(buffer, 512);
-	TRACE("send %s \n", buffer);
-	send(c_Socket, buffer, 512, 0);
-	string x;
-	while (1)
-	{
-		recv(c_Socket, buffer, 512, 0);
-		x = buffer;
-		if (x == "server:recv over!")
-		{
-			TRACE("server:recv over!\n");
-			break;
-		}
-		else
-		{	
-			if(rfile.read(buffer, 512).gcount() > 0)
-			{
-				send(c_Socket, buffer, 512, 0);
-				TRACE("send %s \n", buffer);
-				memset(buffer, 0, 512);
-				break;
-			}
-			else
-			{	
-				Sleep(10000);
-				send(c_Socket, "client:send over!", strlen("client:send over!") + 1, 0);
-				TRACE("client send client:send over!\n");
-				memset(buffer, 0, 512);
-				break;
-			}				
-		}
-
-	}
 	
-
-	closesocket(c_Socket);
-	rfile.close();
-
-
-	WSACleanup();
-
 }
 
 
+//void CprojectsevenclientDlg::OnClickedExitConect()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	WSACleanup();
+//}
+
+
+//void CprojectsevenclientDlg::OnClickedExitListen()
+//{
+//	// TODO: 在此添加控件通知处理程序代码
+//	m_bLoop = false;
+//	WSACleanup();
+//}
+
+
+//bool CprojectsevenclientDlg::DoEvents()
+//{
+//	// TODO: 在此处添加实现代码.
+//	MSG msg;
+//	::GetMessage(&msg, 0, 0, 0);
+//	if (msg.message == WM_QUIT){
+//		PostQuitMessage(msg.wParam);
+//		return FALSE;
+//	}
+//	else{
+//         ::TranslateMessage(&msg);
+//        ::DispatchMessage(&msg);
+//         return TRUE;
+//	}
+//}
