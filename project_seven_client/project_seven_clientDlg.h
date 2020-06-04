@@ -35,14 +35,18 @@ public:
 
 	CString m_strIP;
 	short m_nPort;
-//	CEdit s_fileadd;
-	afx_msg void OnClickedListen();
 	afx_msg void OnClickedConnect();
-//	afx_msg void OnClickedExitConect();
-//	afx_msg void OnClickedExitListen();
 	CString m_c_fileadd;
 	CString m_s_fileadd;
-//	bool DoEvents();
 	bool m_bLoop;
 	CButton edit_listen;
+	afx_msg void OnClickedBanquan();
+	sockaddr_in ss_addr;
+	sockaddr_in d_addr;
+	sockaddr_in cmp_daddr;
+	int addrlen;
+	//SOCKET c_Socket;
+	afx_msg void OnClickedListen();
+	afx_msg void OnClickedBaocun();
+	afx_msg void OnClickedHelp();
 };

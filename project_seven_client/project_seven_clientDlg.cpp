@@ -7,6 +7,8 @@
 #include "project_seven_client.h"
 #include "project_seven_clientDlg.h"
 #include "afxdialogex.h"
+#include "resource.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -61,6 +63,7 @@ CprojectsevenclientDlg::CprojectsevenclientDlg(CWnd* pParent /*=nullptr*/)
 	, m_s_fileadd(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	addrlen = 0;
 }
 
 void CprojectsevenclientDlg::DoDataExchange(CDataExchange* pDX)
@@ -71,7 +74,7 @@ void CprojectsevenclientDlg::DoDataExchange(CDataExchange* pDX)
 	//  DDX_Control(pDX, IDC_EDIT3, s_fileadd);
 	DDX_Text(pDX, IDC_EDIT3, m_c_fileadd);
 	DDX_Text(pDX, IDC_EDIT4, m_s_fileadd);
-	DDX_Control(pDX, IDC_LISTEN, edit_listen);
+	//DDX_Control(pDX, IDC_LISTEN, edit_listen);
 }
 
 BEGIN_MESSAGE_MAP(CprojectsevenclientDlg, CDialogEx)
@@ -79,9 +82,13 @@ BEGIN_MESSAGE_MAP(CprojectsevenclientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 
-	ON_BN_CLICKED(IDC_LISTEN, &CprojectsevenclientDlg::OnClickedListen)
+	//ON_BN_CLICKED(IDC_LISTEN, &CprojectsevenclientDlg::OnClickedListen)
 	ON_BN_CLICKED(IDC_CONNECT, &CprojectsevenclientDlg::OnClickedConnect)
 
+	ON_BN_CLICKED(IDC_banquan, &CprojectsevenclientDlg::OnClickedBanquan)
+	ON_BN_CLICKED(IDC_LISTEN, &CprojectsevenclientDlg::OnClickedListen)
+	ON_BN_CLICKED(IDC_BAOCUN, &CprojectsevenclientDlg::OnClickedBaocun)
+	ON_BN_CLICKED(IDC_HELP, &CprojectsevenclientDlg::OnClickedHelp)
 END_MESSAGE_MAP()
 
 
@@ -113,9 +120,10 @@ BOOL CprojectsevenclientDlg::OnInitDialog()
 
 	// 设置此对话框的图标。  当应用程序主窗口不是对话框时，框架将自动
 	//  执行此操作
+
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
-
+	AfxGetMainWnd()->SetWindowText(_T("计算机172 陈屹宙1732113426 陈奕楠1732111426"));
 	// TODO: 在此添加额外的初始化代码
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(1, 1), &wsaData))
@@ -123,6 +131,41 @@ BOOL CprojectsevenclientDlg::OnInitDialog()
 		AfxMessageBox(_T("winsock startup failed"), MB_OKCANCEL | MB_ICONQUESTION, 0);
 		PostMessage(WM_CLOSE);
 	}
+
+	// 初始化socket dll 
+	//UpdateData(TRUE);
+	//ifstream rfile;
+	//ofstream ofile;
+	//int n;
+	//创建socket 
+	//c_Socket = socket(AF_INET, SOCK_STREAM, 0);
+	/*if (SOCKET_ERROR == c_Socket)
+	{
+		printf("Create Socket Error!");
+		system("pause");
+		exit(1);
+	}
+	*/
+
+
+	addrlen = sizeof(struct sockaddr_in);
+	//char s_buffer[512];
+	//char r_buffer[512];
+	//sockaddr_in	ss_addr, d_addr, cmp_daddr;
+
+	//ss_addr赋值
+	memset(&ss_addr, 0, addrlen);
+	ss_addr.sin_family = AF_INET;
+	USES_CONVERSION;
+	ss_addr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+	ss_addr.sin_port = htons(6001);
+
+	//d_addr赋值
+	//memset(&d_addr, 0, addrlen);
+	//d_addr.sin_family = AF_INET;
+	//USES_CONVERSION;
+	//d_addr.sin_addr.S_un.S_addr = inet_addr(W2A(m_strIP));
+	//d_addr.sin_port = htons(m_nPort);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -179,187 +222,113 @@ HCURSOR CprojectsevenclientDlg::OnQueryDragIcon()
 
 
 
-
-
-void CprojectsevenclientDlg::OnClickedListen()
-{
-	UpdateData(TRUE);
-	// 声明并初始化一个服务端(本地)的地址结构 
-	sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
-	server_addr.sin_port = htons(6001);
-
-	// 创建socket 
-	SOCKET m_Socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (SOCKET_ERROR == m_Socket)
-	{
-		printf("Create Socket Error!");
-		exit(1);
-	}
-
-	//绑定socket和服务端(本地)地址 
-	if (SOCKET_ERROR == bind(m_Socket, (LPSOCKADDR)&server_addr, sizeof(server_addr)))
-	{
-		printf("Server Bind Failed: %d", WSAGetLastError());
-		exit(1);
-	}
-
-	//监听 
-	if (SOCKET_ERROR == listen(m_Socket, 10))
-	{
-		printf("Server Listen Failed: %d", WSAGetLastError());
-		exit(1);
-	}
-
-
-	ofstream rfile;
-	//rfile.open(m_s_fileadd, ios::binary);
-	rfile.open(m_s_fileadd, ios::binary);
-	string x;
-	char buffer[512];
-
-	printf("Listening To Server...\n");    //监听服务器需求
-
-
-	sockaddr_in client_addr;
-	int client_addr_len = sizeof(client_addr);
-
-	SOCKET m_New_Socket = accept(m_Socket, (sockaddr*)&client_addr, &client_addr_len);
-	if (SOCKET_ERROR == m_New_Socket)
-	{
-		printf("Server Accept Failed: %d", WSAGetLastError());
-
-	}
-
-	memset(buffer, 0, 512);
-
-
-	char file_name[1024 + 1];
-	memset(file_name, 0, 1024 + 1);
-	printf("%s\n", file_name);
-
-
-
-	//rfile.open("D:\\happy.txt", ios::binary);
-	//rfile.open("D:\\happy.txt", ios::binary);
-	while (1)
-	{
-
-		edit_listen.EnableWindow(FALSE);
-		int redlen = recv(m_New_Socket, buffer, 512, 0);
-		x = buffer;
-		if (redlen <= 0)
-		{
-			TRACE("server OVER \n", buffer);;
-			rfile.close();
-			closesocket(m_New_Socket);
-			break;
-		}
-		if (x == "client:send over!")
-		{
-			TRACE("server recv %s \n", buffer);;
-			send(m_New_Socket, "server:recv over!", strlen("server:recv over!") + 1, 0);
-			rfile.close();
-			closesocket(m_New_Socket);
-			break;
-		}
-		//
-
-		rfile.write(buffer, redlen);
-		TRACE("recv is %s the len is %d\n", buffer, redlen);
-		send(m_New_Socket, "server:wait recv", strlen("server:wait recv") + 1, 0);
-		closesocket(m_New_Socket);
-		rfile.close();
-
-	}
-	rfile.close();
-
-	closesocket(m_Socket);
-	//释放winsock库 
-	WSACleanup();
-	edit_listen.EnableWindow(TRUE);
-
-
-}
-
-
 void CprojectsevenclientDlg::OnClickedConnect()
 {
 	// 初始化socket dll 
 	UpdateData(TRUE);
 	ifstream rfile;
-
+	string check;
+	char s_buffer[512];
 	//创建socket 
-	SOCKET c_Socket = socket(AF_INET, SOCK_STREAM, 0);
+	SOCKET c_Socket = socket(AF_INET, SOCK_DGRAM, 0);
 	if (SOCKET_ERROR == c_Socket)
 	{
-		printf("Create Socket Error!");
-		system("pause");
-		exit(1);
-	}
+		TRACE("Create Socket Error!\n");
 
-	//指定服务端的地址 
-	sockaddr_in server_addr;
-	server_addr.sin_family = AF_INET;
+	}
+	//d_addr赋值
+	memset(&d_addr, 0, addrlen);
+	d_addr.sin_family = AF_INET;
 	USES_CONVERSION;
-	server_addr.sin_addr.S_un.S_addr = inet_addr(W2A(m_strIP));
-	server_addr.sin_port = htons(m_nPort);
+	d_addr.sin_addr.S_un.S_addr = inet_addr(W2A(m_strIP));
+	d_addr.sin_port = htons(m_nPort);
 
-	if (SOCKET_ERROR == connect(c_Socket, (LPSOCKADDR)&server_addr, sizeof(server_addr)))
+	if (bind(c_Socket, (LPSOCKADDR)&ss_addr, addrlen)<0){
+		TRACE("Can Not Connect To Client IP! ip is %s port is %d\n", W2A(m_strIP),(int)m_nPort);
+	}
+	int o;
+	memset(s_buffer, 0, 512);
+
+	rfile.open(m_c_fileadd, ios::binary);
+	rfile.read(s_buffer, 512);
+	o = sendto(c_Socket, s_buffer, strlen(s_buffer), 0, (LPSOCKADDR)&d_addr, addrlen);
+	if (o <0) {
+		TRACE("sendto error! is %d\n",o);
+	}
+	TRACE("have send %s |o is %d !\n",s_buffer,o);
+	rfile.close();
+	sendto(c_Socket, "over", strlen("over"), 0, (LPSOCKADDR)&d_addr, addrlen);
+	closesocket(c_Socket);
+}
+
+
+
+
+void CprojectsevenclientDlg::OnClickedBanquan()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	AfxMessageBox(_T("计算机172 陈屹宙1732113426 陈奕楠1732111426"), MB_ICONQUESTION);
+}
+
+
+void CprojectsevenclientDlg::OnClickedListen()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int n;
+	ofstream ofile;
+	string check;
+	char r_buffer[512];
+	memset(r_buffer, 0, 512);
+	SOCKET c_Socket = socket(AF_INET, SOCK_DGRAM, 0);
+	if (SOCKET_ERROR == c_Socket)
 	{
-		TRACE("Can Not Connect To Client IP!\n");
-
-
+		TRACE("Create Socket Error!");
 	}
 
+	if (bind(c_Socket, (LPSOCKADDR)&ss_addr, addrlen) < 0) {
+		TRACE("wtf\n");
+	}
+	while (1) {
+		EnableWindow(FALSE);
+		/* 接收信息并显示 */
+		n = recvfrom(c_Socket, r_buffer, 512, 0, (LPSOCKADDR)&cmp_daddr, &addrlen);
+		//ofile.open("D:/HAPP.txt", ios::binary);
+		TRACE("rec buffer is %s!\n", r_buffer);
+		check = r_buffer;
+		if (n < 0) {
+			memset(r_buffer, 0, 512);
+			TRACE("rec error!\n");
 
-
-	char buffer[512];
-	memset(buffer, 0, 512);
-	//rfile.open("E:\\happy.txt", ios::binary);
-	rfile.open(m_c_fileadd, ios::binary);
-	rfile.read(buffer, 512);
-	TRACE("send %s \n", buffer);
-	send(c_Socket, buffer, 512, 0);
-	string x;
-	while (1)
-	{
-		recv(c_Socket, buffer, 512, 0);
-		x = buffer;
-		if (x == "server:recv over!")
-		{
-			TRACE("server:recv over!\n");
+		}
+		if (check == "over") {
+			TRACE("rec over!\n");
+			AfxMessageBox(_T("传输完成 缓存文件存放于D:\\save.txt,请重定向文件存储位置"));
 			break;
 		}
-		else
-		{	
-			if(rfile.read(buffer, 512).gcount() > 0)
-			{
-				send(c_Socket, buffer, 512, 0);
-				TRACE("send %s \n", buffer);
-				memset(buffer, 0, 512);
-				break;
-			}
-			else
-			{	
-				Sleep(10000);
-				send(c_Socket, "client:send over!", strlen("client:send over!") + 1, 0);
-				TRACE("client send client:send over!\n");
-				memset(buffer, 0, 512);
-				break;
-			}				
-		}
-
+		ofile.open("D:/save.txt", ios::binary);
+		ofile.write(r_buffer, 512);
+		ofile.close();
+		memset(r_buffer, 0, 512);
 	}
-	
 
 	closesocket(c_Socket);
-	rfile.close();
-
-
 	WSACleanup();
 
 }
 
 
+void CprojectsevenclientDlg::OnClickedBaocun()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	UpdateData(TRUE);
+	ifstream input("D:/save.txt", ios::binary);
+	ofstream output(m_s_fileadd, ios::binary);
+	output << input.rdbuf();
+}
+
+
+void CprojectsevenclientDlg::OnClickedHelp()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	AfxMessageBox(_T("帮助信息：\n  想使用本程序传输文件首先需要设置另一端的端口号和ip地址及文件地址\n然后接收端首先启动监听然后可以点击传输端的传输\n传输完成后默认文件缓存储存于D:/save.txt\n可使用保存功能重定向文件的储存地址"), MB_ICONQUESTION);
+}
